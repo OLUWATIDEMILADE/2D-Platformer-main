@@ -9,8 +9,11 @@ public class GameManager : MonoBehaviour
 {
     public Transform player;
     private Vector3 lastSafePosition;
-    public float countTime = 60f;
+
+    // Set timer to 8 minutes (480 seconds)
+    public float countTime = 480f;
     private float currentTime;
+
     public TextMeshProUGUI timerText;
     public GameObject TimerPanel;
     public float jumpForce = 10f;
@@ -32,7 +35,6 @@ public class GameManager : MonoBehaviour
         {
             player.position = lastSafePosition + new Vector3(0, 3f, 0);
         }
-
     }
 
     private bool PlayerInWater()

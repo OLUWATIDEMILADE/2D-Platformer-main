@@ -11,7 +11,6 @@ public class PlayerDamage : MonoBehaviour
     private int lifeScoreCount;
 
     private bool canDamage;
-    public GameManager gameManager;
 
     void Awake()
     {
@@ -27,26 +26,23 @@ public class PlayerDamage : MonoBehaviour
         Time.timeScale = 1f;
     }
 
-    public void DealDamage(Vector3? waterPosition = null)
+    public void DealDamage()
     {
         if (canDamage)
         {
 
             lifeScoreCount--;
 
-            if (lifeScoreCount > 0)
+            if (lifeScoreCount >= 0)
             {
                 lifeText.text = "x" + lifeScoreCount;
-                gameManager.HandlePlayerRespawn(waterPosition);
             }
 
             if (lifeScoreCount == 0)
             {
-                // Go to Menu scene
-                SceneManager.LoadScene("Menu");
-                //Time.timeScale = 0f;
-                //lifeText.text = "x" + lifeScoreCount;
-                //StartCoroutine(RestartGame());
+                // RESTART THE GAME
+                Time.timeScale = 0f;
+                StartCoroutine(RestartGame());
             }
 
             canDamage = false;
@@ -64,20 +60,11 @@ public class PlayerDamage : MonoBehaviour
     IEnumerator RestartGame()
     {
         yield return new WaitForSecondsRealtime(2f);
-        SceneManager.LoadScene("GameScene-ALU");
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.gameObject.CompareTag("Water"))
-        {
-            Vector3 waterPosition = collision.transform.position;
-            DealDamage(waterPosition);
-
-        }
+        SceneManager.LoadScene("Gameplay");
     }
 
 } // class
+
 
 
 

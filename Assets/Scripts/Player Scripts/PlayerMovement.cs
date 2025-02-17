@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-
     public float speed = 5f;
+    private float jumpPower = 12f;
 
     private Rigidbody2D myBody;
     private Animator anim;
@@ -16,63 +16,59 @@ public class PlayerMovement : MonoBehaviour
     private bool isGrounded;
     private bool jumped;
 
-    private float jumpPower = 12f;
+    // Radius for ground check
+    private float groundCheckRadius = 0.2f;
 
     void Awake()
     {
         myBody = GetComponent<Rigidbody2D>();
-
         anim = GetComponent<Animator>();
-    }
-
-    void Start()
-    {
-
     }
 
     void Update()
     {
-        //Check if the player is grounded here to ensure the player is not jumping mid air
-        //Make the player jump
+        // Check if the player is grounded
         CheckIfGrounded();
+
+        // Make the player jump
         PlayerJump();
     }
 
     void FixedUpdate()
     {
+        // Move the player
         PlayerWalk();
     }
 
+    // Handle Player Walking
     void PlayerWalk()
     {
+        // Get horizontal input
+        float h = Input.GetAxis("Horizontal");
 
-        float h = Input.GetAxis("Horizontal"); //replace "0" as the value of float h with the correct axis of movement.
-                                               //Note: The value of h must use the right and left or "a" and "d" keys to move the player
-                                               //right and left.
-
+        // Move right
         if (h > 0)
         {
             myBody.velocity = new Vector2(speed, myBody.velocity.y);
-
             ChangeDirection(1);
-
         }
+        // Move left
         else if (h < 0)
         {
             myBody.velocity = new Vector2(-speed, myBody.velocity.y);
-
             ChangeDirection(-1);
-
         }
+        // Idle
         else
         {
             myBody.velocity = new Vector2(0f, myBody.velocity.y);
         }
 
+        // Update animation state
         anim.SetInteger("Speed", Mathf.Abs((int)myBody.velocity.x));
-
     }
 
+    // Change Player Facing Direction
     void ChangeDirection(int direction)
     {
         Vector3 tempScale = transform.localScale;
@@ -80,67 +76,37 @@ public class PlayerMovement : MonoBehaviour
         transform.localScale = tempScale;
     }
 
-    //Checking if the player is on the ground
+    // Check if Player is on the Ground
     void CheckIfGrounded()
     {
-        isGrounded = Physics2D.Raycast(groundCheckPosition.position, Vector2.down, 0.1f, groundLayer);
+        isGrounded = Physics2D.OverlapCircle(groundCheckPosition.position, groundCheckRadius, groundLayer);
 
-        if (isGrounded)
+        // Reset jump animation if grounded
+        if (isGrounded && jumped)
         {
-            // and we jumped before
-            if (jumped)
-            {
-
-                jumped = false;
-
-                anim.SetBool("Jump", false);
-            }
+            jumped = false;
+            anim.SetBool("Jump", false);
         }
-
     }
 
-    //Make the player jump
+    // Make the Player Jump
     void PlayerJump()
     {
-        if (isGrounded)
+        if (isGrounded && Input.GetKeyDown(KeyCode.Space))
         {
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                jumped = true;
-                myBody.velocity = new Vector2(myBody.velocity.x, jumpPower);
-
-                anim.SetBool("Jump", true);
-            }
+            jumped = true;
+            myBody.velocity = new Vector2(myBody.velocity.x, jumpPower);
+            anim.SetBool("Jump", true);
         }
     }
 
-} // class
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    // Optional: Visualize Ground Check Radius in Scene View
+    void OnDrawGizmos()
+    {
+        if (groundCheckPosition != null)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(groundCheckPosition.position, groundCheckRadius);
+        }
+    }
+}
